@@ -1,0 +1,5 @@
+Ship can be modular. Starts out as a few cubes of different types:
+
+- Thruster
+- Weapon
+- Cockpit
