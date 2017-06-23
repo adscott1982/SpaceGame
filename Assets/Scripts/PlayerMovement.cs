@@ -3,10 +3,15 @@
 public class PlayerMovement : MonoBehaviour
 {
     public float maxAcceleration = 0.1f;
-    public float maxRotationSpeed = 0.1f;
+    public float maxRotationSpeed = 50f;
 
     private Vector2 speed = Vector2.zero;
-    
+    private float translationAcceleration;
+
+    private float rotationSpeed;
+    private float previousRotationSpeed;
+    private float rotationSpeedAcceleration;
+
 	// Use this for initialization
 	void Start ()
     {
@@ -17,10 +22,9 @@ public class PlayerMovement : MonoBehaviour
 	void Update ()
     {
         var leftThumbstick = GetThumbstick();
-        var direction = GetDirectionFromThumbStickVector2(leftThumbstick);
         this.SetSpeed(leftThumbstick);
-        this.SetRotation(this.speed);
-        this.UpdatePosition();
+        this.SetRotationSpeedTowardsVector(this.speed);
+        this.UpdateTransform();
     }
 
     private Vector2 GetThumbstick()
@@ -35,9 +39,17 @@ public class PlayerMovement : MonoBehaviour
         this.speed += acceleration;
     }
 
-    private void UpdatePosition()
+    private void SetRotationSpeedTowardsVector(Vector2 vector)
+    {
+        this.rotationSpeed = this.GetLerpedRotationDelta(vector, 1f, this.maxRotationSpeed);
+        this.rotationSpeedAcceleration = this.rotationSpeed - this.previousRotationSpeed;
+        this.previousRotationSpeed = this.rotationSpeed;
+    }
+
+    private void UpdateTransform()
     {
         this.transform.position = this.transform.position.AddVector2(this.speed);
+        this.transform.rotation = Quaternion.Euler(new Vector3(0, 0, this.transform.rotation.eulerAngles.z + this.rotationSpeed));
     }
 
     private float? GetDirectionFromThumbStickVector2(Vector2 vector)
@@ -46,18 +58,12 @@ public class PlayerMovement : MonoBehaviour
         return (Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg) - 90f;
     }
 
-    private void SetRotation(float direction)
-    {
-        this.transform.rotation = Quaternion.Euler(new Vector3(0, 0, direction));
-    }
-
-    private void SetRotation(Vector2 vector)
+    private float GetLerpedRotationDelta(Vector2 vector, float interpolationValue, float maxRotationDelta)
     {
         var targetRotation = (Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg);
         var currentRotation = this.transform.rotation.eulerAngles.z;
         var maxRotationThisFrame = this.maxRotationSpeed * Time.deltaTime;
-
-        var lerpedRotation = Mathf.LerpAngle(currentRotation, targetRotation, 1f * Time.deltaTime);
+        var lerpedRotation = Mathf.LerpAngle(currentRotation, targetRotation, interpolationValue * Time.deltaTime);
         var rotationDelta = lerpedRotation - currentRotation;
 
         if (Mathf.Abs(rotationDelta) > maxRotationThisFrame)
@@ -65,6 +71,6 @@ public class PlayerMovement : MonoBehaviour
             rotationDelta = Mathf.Sign(rotationDelta) * maxRotationThisFrame;
         }
 
-        this.transform.rotation = Quaternion.Euler(new Vector3(0, 0, currentRotation + rotationDelta));
+        return rotationDelta;
     }
 }
