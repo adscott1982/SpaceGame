@@ -1,5 +1,6 @@
-Ship can be modular. Starts out as a few cubes of different types:
+Initial Target:
 
-- Thruster
-- Weapon
-- Cockpit
+Fly ship using left thumbstick.
+Engines fire dependent on thrust direction.
+Ship brakes using left trigger.
+Space dust floats around which gives indication of movement.
