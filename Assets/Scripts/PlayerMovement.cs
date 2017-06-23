@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 speed = Vector2.zero;
     private float translationAcceleration;
 
+    private float targetDirection;
     private float rotationSpeed;
     private float previousRotationSpeed;
     private float rotationSpeedAcceleration;
@@ -21,27 +23,65 @@ public class PlayerMovement : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        var leftThumbstick = GetThumbstick();
-        this.SetSpeed(leftThumbstick);
-        this.SetRotationSpeedTowardsVector(this.speed);
+        var leftThumbstick = this.GetThumbstick();
+        var leftTrigger = this.GetLeftTrigger();
+
+        if (leftTrigger == 0)
+        {
+            this.SetSpeedTowardsVector(leftThumbstick);
+        }
+        else
+        {
+            this.Decelerate(leftTrigger);
+        }
+
+        if (this.speed.magnitude > 0)
+        {
+            this.targetDirection = this.speed.Direction();
+            this.SetRotationSpeedTowardsDirection(this.targetDirection);
+        }
+
+        this.SetRotationSpeedTowardsDirection(this.targetDirection);
+
         this.UpdateTransform();
+    }
+
+    private void Decelerate(float leftTrigger)
+    {
+        if (Mathf.Approximately(0f, this.speed.magnitude))
+        {
+            this.speed = Vector2.zero;
+            return;
+        }
+
+        var deceleration = leftTrigger * this.maxAcceleration * Time.deltaTime;
+        var newSpeed = Mathf.Clamp(this.speed.magnitude - deceleration, 0, this.speed.magnitude);
+        var newSpeedRatio = newSpeed / this.speed.magnitude;
+        this.speed = new Vector2(this.speed.x * newSpeedRatio, this.speed.y * newSpeedRatio);
     }
 
     private Vector2 GetThumbstick()
     {
-        var vector = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        return vector; 
+        var vector = new Vector2(Input.GetAxis("LThumbstickX"), Input.GetAxis("LThumbstickY"));
+        return vector;
     }
 
-    private void SetSpeed(Vector2 inputVector)
+    private float GetLeftTrigger()
+    {
+        var leftTriggerValue = Input.GetAxis("LeftTrigger");
+        Debug.Log("Left trigger: " + leftTriggerValue);
+        return leftTriggerValue;
+    }
+
+    private void SetSpeedTowardsVector(Vector2 inputVector)
     {
         var acceleration = inputVector * this.maxAcceleration * Time.deltaTime;
         this.speed += acceleration;
     }
 
-    private void SetRotationSpeedTowardsVector(Vector2 vector)
+    private void SetRotationSpeedTowardsDirection(float direction)
     {
-        this.rotationSpeed = this.GetLerpedRotationDelta(vector, 1f, this.maxRotationSpeed);
+        this.rotationSpeed = this.GetLerpedRotationDelta(direction, 1f, this.maxRotationSpeed);
         this.rotationSpeedAcceleration = this.rotationSpeed - this.previousRotationSpeed;
         this.previousRotationSpeed = this.rotationSpeed;
     }
@@ -55,12 +95,11 @@ public class PlayerMovement : MonoBehaviour
     private float? GetDirectionFromThumbStickVector2(Vector2 vector)
     {
         if (vector.magnitude < 0.5f) return null;
-        return (Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg) - 90f;
+        return vector.Direction() - 90f;
     }
 
-    private float GetLerpedRotationDelta(Vector2 vector, float interpolationValue, float maxRotationDelta)
+    private float GetLerpedRotationDelta(float targetRotation, float interpolationValue, float maxRotationDelta)
     {
-        var targetRotation = (Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg);
         var currentRotation = this.transform.rotation.eulerAngles.z;
         var maxRotationThisFrame = this.maxRotationSpeed * Time.deltaTime;
         var lerpedRotation = Mathf.LerpAngle(currentRotation, targetRotation, interpolationValue * Time.deltaTime);
