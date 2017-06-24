@@ -17,6 +17,18 @@ public static class InputManager
         return vector;
     }
 
+    public static Vector2 GetRightThumbstick()
+    {
+        var vector = new Vector2(Input.GetAxis("RThumbstickX"), Input.GetAxis("RThumbstickY"));
+
+        if (vector.magnitude < ThumbstickDeadzone)
+        {
+            vector = Vector2.zero;
+        }
+
+        return vector;
+    }
+
     public static float GetLeftTrigger()
     {
         var leftTriggerValue = Input.GetAxis("LeftTrigger");
