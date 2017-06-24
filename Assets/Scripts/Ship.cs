@@ -8,18 +8,25 @@ public class Ship : MonoBehaviour
     private float previousRotationSpeed;
     private float rotationSpeedAcceleration;
 
-    public float TargetDirection { get; set; }
+    private float targetDirection;
+
+    private PlayerMovement playerMovement;
 
     // Use this for initialization
     void Start ()
     {
-		
+        this.playerMovement = this.transform.parent.gameObject.GetComponent<PlayerMovement>();
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-        this.SetRotationSpeedTowardsDirection(this.TargetDirection);
+        if (this.playerMovement.Speed.magnitude > 0)
+        {
+            this.targetDirection = this.playerMovement.Speed.Direction();
+        }
+
+        this.SetRotationSpeedTowardsDirection(this.targetDirection);
         this.UpdateRotation(this.rotationSpeed);
 	}
 
@@ -33,6 +40,8 @@ public class Ship : MonoBehaviour
     private void UpdateRotation(float rotationSpeed)
     {
         rotationSpeed = rotationSpeed * Time.deltaTime;
-        this.transform.rotation = Quaternion.Euler(new Vector3(0, 0, this.transform.rotation.eulerAngles.z + rotationSpeed));
+        this.transform.rotation = (this.transform.rotation.eulerAngles.z + rotationSpeed).AsEulerZ();
     }
+
+
 }

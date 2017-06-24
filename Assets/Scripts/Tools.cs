@@ -24,4 +24,9 @@ public static class Tools
 
         return rotationDelta;
     }
+
+    public static Quaternion AsEulerZ(this float zRotation)
+    {
+        return Quaternion.Euler(new Vector3(0, 0, zRotation));
+    }
 }
