@@ -1,24 +1,23 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     public float maxAcceleration = 0.1f;
-    public float maxRotationSpeed = 50f;
 
     private Vector2 speed = Vector2.zero;
     private float translationAcceleration;
 
-    private float targetDirection;
-    private float rotationSpeed;
-    private float previousRotationSpeed;
-    private float rotationSpeedAcceleration;
+    private Ship ship;
+    private GameObject targetDirectionArrow;
+    private GameObject actualDirectionArrow;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
-		
-	}
+        this.ship = this.transform.Find("Ship").gameObject.GetComponent(typeof(Ship)) as Ship;
+        this.targetDirectionArrow = this.transform.Find("TargetDirectionArrow").gameObject;
+        this.actualDirectionArrow = this.transform.Find("ActualDirectionArrow").gameObject;
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -37,13 +36,10 @@ public class PlayerMovement : MonoBehaviour
 
         if (this.speed.magnitude > 0)
         {
-            this.targetDirection = this.speed.Direction();
-            this.SetRotationSpeedTowardsDirection(this.targetDirection);
+            this.ship.TargetDirection = this.speed.Direction();
         }
 
-        this.SetRotationSpeedTowardsDirection(this.targetDirection);
-
-        this.UpdateTransform();
+        this.UpdatePosition();
     }
 
     private void Decelerate(float leftTrigger)
@@ -79,37 +75,14 @@ public class PlayerMovement : MonoBehaviour
         this.speed += acceleration;
     }
 
-    private void SetRotationSpeedTowardsDirection(float direction)
-    {
-        this.rotationSpeed = this.GetLerpedRotationDelta(direction, 1f, this.maxRotationSpeed);
-        this.rotationSpeedAcceleration = this.rotationSpeed - this.previousRotationSpeed;
-        this.previousRotationSpeed = this.rotationSpeed;
-    }
-
-    private void UpdateTransform()
+    private void UpdatePosition()
     {
         this.transform.position = this.transform.position.AddVector2(this.speed);
-        this.transform.rotation = Quaternion.Euler(new Vector3(0, 0, this.transform.rotation.eulerAngles.z + this.rotationSpeed));
     }
 
     private float? GetDirectionFromThumbStickVector2(Vector2 vector)
     {
         if (vector.magnitude < 0.5f) return null;
         return vector.Direction() - 90f;
-    }
-
-    private float GetLerpedRotationDelta(float targetRotation, float interpolationValue, float maxRotationDelta)
-    {
-        var currentRotation = this.transform.rotation.eulerAngles.z;
-        var maxRotationThisFrame = this.maxRotationSpeed * Time.deltaTime;
-        var lerpedRotation = Mathf.LerpAngle(currentRotation, targetRotation, interpolationValue * Time.deltaTime);
-        var rotationDelta = lerpedRotation - currentRotation;
-
-        if (Mathf.Abs(rotationDelta) > maxRotationThisFrame)
-        {
-            rotationDelta = Mathf.Sign(rotationDelta) * maxRotationThisFrame;
-        }
-
-        return rotationDelta;
     }
 }
