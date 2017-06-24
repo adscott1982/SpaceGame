@@ -3,15 +3,14 @@
 public class PlayerMovement : MonoBehaviour
 {
     public float maxAcceleration = 0.1f;
-    private float translationAcceleration;
-    private GameObject actualDirectionArrow;
 
     public Vector2 Speed { get; private set; }
+    public Vector2 TranslationAcceleration { get; private set; }
 
     // Use this for initialization
     void Start ()
     {
-        this.actualDirectionArrow = this.transform.Find("Radar/ActualDirectionArrow").gameObject;
+
     }
 	
 	// Update is called once per frame
@@ -36,25 +35,26 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Mathf.Approximately(0f, this.Speed.magnitude))
         {
-            this.Speed = Vector2.zero;
+            this.TranslationAcceleration = Vector2.zero;
             return;
         }
 
-        var deceleration = leftTrigger * this.maxAcceleration * Time.deltaTime;
+        var deceleration = leftTrigger * this.maxAcceleration;
         var newSpeed = Mathf.Clamp(this.Speed.magnitude - deceleration, 0, this.Speed.magnitude);
         var newSpeedRatio = newSpeed / this.Speed.magnitude;
-        this.Speed = new Vector2(this.Speed.x * newSpeedRatio, this.Speed.y * newSpeedRatio);
+
+        this.TranslationAcceleration = (new Vector2(this.Speed.x * newSpeedRatio, this.Speed.y * newSpeedRatio)) - this.Speed;
     }
 
     private void SetSpeedTowardsVector(Vector2 inputVector)
     {
-        var acceleration = inputVector * this.maxAcceleration * Time.deltaTime;
-        this.Speed += acceleration;
+        this.TranslationAcceleration = inputVector * this.maxAcceleration;
     }
 
     private void UpdatePosition()
     {
-        this.transform.position = this.transform.position.AddVector2(this.Speed);
+        this.Speed += this.TranslationAcceleration;
+        this.transform.position = this.transform.position.AddVector2(this.Speed * Time.deltaTime);
     }
 
     private float? GetDirectionFromThumbStickVector2(Vector2 vector)
