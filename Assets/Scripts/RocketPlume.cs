@@ -23,7 +23,6 @@ public class RocketPlume : MonoBehaviour
         var translationAccelerationX = this.ship.RelativeTranslationAcceleration.x;
         var translationAccelerationY = this.ship.RelativeTranslationAcceleration.y;
         var rotationAcceleration = this.ship.RotationSpeedAcceleration;
-
         var totalThrustRatio = 0f;
 
         foreach(var thrustType in this.ThrustTypes)
@@ -63,19 +62,12 @@ public class RocketPlume : MonoBehaviour
         this.UpdatePlumeScale(totalThrustRatio);
     }
 
-    private void UpdatePlumeScale(float acceleration)
+    private void UpdatePlumeScale(float totalThrustRatio)
     {
-        var xScale = 0f;
-        
-        if (acceleration > 0 && !Mathf.Approximately(0, acceleration))
-        {
-            xScale = (acceleration) * 10;
-        }
-
         foreach (var sprite in this.RocketSprites)
         {
             var currentScale = sprite.gameObject.transform.localScale;
-            sprite.gameObject.transform.localScale = new Vector3(xScale, currentScale.y, currentScale.z);
+            sprite.gameObject.transform.localScale = new Vector3(totalThrustRatio, currentScale.y, currentScale.z);
         }
     }
 

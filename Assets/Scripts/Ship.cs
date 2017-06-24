@@ -2,7 +2,8 @@
 
 public class Ship : MonoBehaviour
 {
-    public float maxRotationSpeed = 50f;
+    public float maxRotationSpeed = 200f;
+    public float maxRotationAcceleration = 1f;
 
     private float rotationSpeed;
     private float previousRotationSpeed;
@@ -48,14 +49,16 @@ public class Ship : MonoBehaviour
 
     private void SetRotationSpeedTowardsDirection(float direction)
     {
-        this.rotationSpeed = Tools.GetLerpedRotationDelta(this.transform.rotation.eulerAngles.z, direction, 1f, this.maxRotationSpeed);
-        this.RotationSpeedAcceleration = this.rotationSpeed - this.previousRotationSpeed;
+        var lerpedRotationSpeed = Tools.GetLerpedRotationDelta(this.transform.rotation.eulerAngles.z, direction, 1f, this.maxRotationSpeed);
+
+        this.RotationSpeedAcceleration = Mathf.Clamp(lerpedRotationSpeed - this.previousRotationSpeed, -this.maxRotationAcceleration, this.maxRotationAcceleration);
+
+        this.rotationSpeed += this.RotationSpeedAcceleration;
         this.previousRotationSpeed = this.rotationSpeed;
     }
 
     private void UpdateRotation(float rotationSpeed)
     {
-        rotationSpeed = rotationSpeed;
         this.transform.rotation = (this.transform.rotation.eulerAngles.z + rotationSpeed * Time.deltaTime).AsEulerZ();
     }
 
