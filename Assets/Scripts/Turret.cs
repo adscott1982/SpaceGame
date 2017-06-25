@@ -1,19 +1,22 @@
-﻿using System;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Turret : MonoBehaviour
 {
     public GameObject ProjectilePrefab;
+    public AudioClip fireSound;
     public float RoundsPerSecond = 5f;
 
     private float thumbstickActivationMag = 0.7f;
     private float timeToFire = 0f;
+    private AudioSource audioSource;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
-		
-	}
+        this.audioSource = this.GetComponent<AudioSource>();
+        this.audioSource.clip = this.fireSound;
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -51,6 +54,7 @@ public class Turret : MonoBehaviour
     private void FireWeapon()
     {
         this.timeToFire = 1f / this.RoundsPerSecond;
-        var projectile = Instantiate(this.ProjectilePrefab, this.transform);
+        Instantiate(this.ProjectilePrefab, this.transform);
+        this.audioSource.Play();
     }
 }
