@@ -39,4 +39,23 @@ public static class Tools
     {
         return RadianToVector2(degree * Mathf.Deg2Rad);
     }
+    public static Bounds OrthographicBounds(this Camera camera)
+    {
+        float screenAspect = Screen.width / Screen.height;
+        float cameraHeight = camera.orthographicSize * 2;
+        Bounds bounds = new Bounds(
+            camera.transform.position,
+            new Vector3(cameraHeight * screenAspect, cameraHeight, 0));
+        return bounds;
+    }
+
+    public static Rect OrthographicRectInWorldSpace(this Camera camera)
+    {
+        var height = camera.orthographicSize * 2;
+        var width = height * Screen.width / Screen.height;
+        var x = camera.transform.position.x - (width / 2);
+        var y = camera.transform.position.y - (height / 2);
+
+        return new Rect(x, y, width, height);
+    }
 }
