@@ -11,6 +11,8 @@ public class Ship : MonoBehaviour
     public float RotationSpeedAcceleration { get; private set; }
     public Vector2 RelativeTranslationAcceleration { get; private set; }
 
+    public Vector2 Speed { get { return this.playerMovement.Speed; } }
+
     private float targetDirection;
 
     private PlayerMovement playerMovement;

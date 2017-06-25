@@ -4,7 +4,7 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     public GameObject ProjectilePrefab;
-    public float FireInterval = 0.5f;
+    public float RoundsPerSecond = 5f;
 
     private float thumbstickActivationMag = 0.7f;
     private float timeToFire = 0f;
@@ -50,7 +50,7 @@ public class Turret : MonoBehaviour
 
     private void FireWeapon()
     {
-        this.timeToFire = this.FireInterval;
+        this.timeToFire = 1f / this.RoundsPerSecond;
         var projectile = Instantiate(this.ProjectilePrefab, this.transform);
     }
 }

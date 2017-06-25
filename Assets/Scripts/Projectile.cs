@@ -4,14 +4,15 @@ public class Projectile : MonoBehaviour
 {
     public float LifeTime = 5f;
     public float Speed = 2f;
-
+    
     private Vector2 speedVector;
 
 	// Use this for initialization
 	void Start ()
     {
+        var playerMovementSpeed = this.transform.parent.parent.gameObject.GetComponent<PlayerMovement>().Speed;
         this.transform.SetParent(null, true);
-        this.speedVector = this.transform.rotation.eulerAngles.z.DegreeToVector2() * this.Speed;  
+        this.speedVector = (this.transform.rotation.eulerAngles.z.DegreeToVector2() * this.Speed) + playerMovementSpeed;
 	}
 	
 	// Update is called once per frame
