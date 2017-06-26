@@ -4,7 +4,7 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     public GameObject ProjectilePrefab;
-    public AudioClip fireSound;
+    public AudioClip fireClip;
     public float RoundsPerSecond = 5f;
 
     private float thumbstickActivationMag = 0.7f;
@@ -14,10 +14,10 @@ public class Turret : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        this.audioSource = this.GetComponent<AudioSource>();
-        this.audioSource.clip = this.fireSound;
+        this.audioSource = this.gameObject.AddComponent<AudioSource>();
+        this.audioSource.clip = this.fireClip;
     }
-	
+
 	// Update is called once per frame
 	void Update ()
     {
