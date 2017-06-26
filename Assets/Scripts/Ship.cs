@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Ship : MonoBehaviour
 {
-    public float maxRotationSpeed = 200f;
-    public float maxRotationAcceleration = 1f;
+    public float MaxRotationSpeed = 200f;
+    public float MaxRotationAcceleration = 1f;
+    public AudioClip EngineSound;
 
     private float rotationSpeed;
     private float previousRotationSpeed;
@@ -16,11 +17,15 @@ public class Ship : MonoBehaviour
     private float targetDirection;
 
     private PlayerMovement playerMovement;
+    private AudioSource audioSource;
 
     // Use this for initialization
     void Start ()
     {
         this.playerMovement = this.transform.parent.gameObject.GetComponent<PlayerMovement>();
+        this.audioSource = this.gameObject.AddComponent<AudioSource>();
+        this.audioSource.clip = this.EngineSound;
+        this.audioSource.volume = 0.5f;
 	}
 	
 	// Update is called once per frame
@@ -34,6 +39,7 @@ public class Ship : MonoBehaviour
         this.SetRotationSpeedTowardsDirection(this.targetDirection);
         this.UpdateRotation(this.rotationSpeed);
         this.UpdateRelativeTranslationAcceleration();
+        this.UpdateSound();
 	}
 
     private void UpdateRelativeTranslationAcceleration()
@@ -51,9 +57,9 @@ public class Ship : MonoBehaviour
 
     private void SetRotationSpeedTowardsDirection(float direction)
     {
-        var lerpedRotationSpeed = Tools.GetLerpedRotationDelta(this.transform.rotation.eulerAngles.z, direction, 1f, this.maxRotationSpeed);
+        var lerpedRotationSpeed = Tools.GetLerpedRotationDelta(this.transform.rotation.eulerAngles.z, direction, 1f, this.MaxRotationSpeed);
 
-        this.RotationSpeedAcceleration = Mathf.Clamp(lerpedRotationSpeed - this.previousRotationSpeed, -this.maxRotationAcceleration, this.maxRotationAcceleration);
+        this.RotationSpeedAcceleration = Mathf.Clamp(lerpedRotationSpeed - this.previousRotationSpeed, -this.MaxRotationAcceleration, this.MaxRotationAcceleration);
 
         this.rotationSpeed += this.RotationSpeedAcceleration;
         this.previousRotationSpeed = this.rotationSpeed;
@@ -62,6 +68,20 @@ public class Ship : MonoBehaviour
     private void UpdateRotation(float rotationSpeed)
     {
         this.transform.rotation = (this.transform.rotation.eulerAngles.z + rotationSpeed * Time.deltaTime).AsEulerZ();
+    }
+
+    private void UpdateSound()
+    {
+        if (Mathf.Approximately(0, this.Speed.magnitude))
+        {
+            this.audioSource.Stop();
+        }
+        else if (!this.audioSource.isPlaying)
+        {
+            this.audioSource.Play();
+        }
+
+        this.audioSource.pitch = this.Speed.magnitude / 50f;
     }
 
 

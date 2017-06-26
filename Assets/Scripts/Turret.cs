@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class Turret : MonoBehaviour
 {
     public GameObject ProjectilePrefab;
