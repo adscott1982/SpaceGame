@@ -4,7 +4,7 @@ public class Ship : MonoBehaviour
 {
     public float MaxRotationSpeed = 200f;
     public float MaxRotationAcceleration = 1f;
-    public AudioClip EngineSound;
+    public AudioClip MovementSound;
 
     private float rotationSpeed;
     private float previousRotationSpeed;
@@ -23,9 +23,7 @@ public class Ship : MonoBehaviour
     void Start ()
     {
         this.playerMovement = this.transform.parent.gameObject.GetComponent<PlayerMovement>();
-        this.audioSource = this.gameObject.AddComponent<AudioSource>();
-        this.audioSource.clip = this.EngineSound;
-        this.audioSource.volume = 0.5f;
+        this.ConfigureAudioSource();
 	}
 	
 	// Update is called once per frame
@@ -41,6 +39,13 @@ public class Ship : MonoBehaviour
         this.UpdateRelativeTranslationAcceleration();
         this.UpdateSound();
 	}
+
+    private void ConfigureAudioSource()
+    {
+        this.audioSource = this.gameObject.AddComponent<AudioSource>();
+        this.audioSource.clip = this.MovementSound;
+        this.audioSource.volume = 1f;
+    }
 
     private void UpdateRelativeTranslationAcceleration()
     {
@@ -72,16 +77,22 @@ public class Ship : MonoBehaviour
 
     private void UpdateSound()
     {
+
         if (Mathf.Approximately(0, this.Speed.magnitude))
         {
-            this.audioSource.Stop();
+            this.audioSource.volume = 0f;
         }
-        else if (!this.audioSource.isPlaying)
+        else
         {
-            this.audioSource.Play();
+            this.audioSource.volume = 1f;
         }
 
         this.audioSource.pitch = this.Speed.magnitude / 50f;
+
+        if (!this.audioSource.isPlaying)
+        {
+            this.audioSource.Play();
+        }  
     }
 
 

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Enums;
+using System;
 
 public class RocketPlume : MonoBehaviour
 {
@@ -8,24 +9,52 @@ public class RocketPlume : MonoBehaviour
     public List<ThrustTypes> ThrustTypes;
     public float TranslationScale;
     public float RotationScale;
+    public AudioClip ThrusterSound;
 
     private Ship ship;
+    private AudioSource audioSource;
 
 	// Use this for initialization
 	void Start ()
     {
 		this.ship = this.transform.parent.gameObject.GetComponent<Ship>();
+        this.ConfigureAudioSource();
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        var thrustRatio = this.GetThrustRatio();
+        this.UpdatePlumeScale(thrustRatio);
+        this.UpdateThrusterSound(thrustRatio);
+    }
+
+    private void UpdateThrusterSound(float thrustRatio)
+    {
+        if (!this.audioSource.isPlaying)
+        {
+            this.audioSource.Play();
+        }
+
+        this.audioSource.volume = thrustRatio;
+    }
+
+    private void ConfigureAudioSource()
+    {
+        this.audioSource = this.gameObject.AddComponent<AudioSource>();
+        this.audioSource.clip = this.ThrusterSound;
+        this.audioSource.volume = 0f;
+    }
+
+    private float GetThrustRatio()
+    {
         var translationAccelerationX = this.ship.RelativeTranslationAcceleration.x;
         var translationAccelerationY = this.ship.RelativeTranslationAcceleration.y;
         var rotationAcceleration = this.ship.RotationSpeedAcceleration;
+
         var totalThrustRatio = 0f;
 
-        foreach(var thrustType in this.ThrustTypes)
+        foreach (var thrustType in this.ThrustTypes)
         {
             switch (thrustType)
             {
@@ -59,7 +88,8 @@ public class RocketPlume : MonoBehaviour
         }
 
         totalThrustRatio = Mathf.Clamp(totalThrustRatio, 0f, 1f);
-        this.UpdatePlumeScale(totalThrustRatio);
+
+        return totalThrustRatio;
     }
 
     private void UpdatePlumeScale(float totalThrustRatio)
