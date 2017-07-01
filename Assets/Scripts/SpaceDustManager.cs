@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SpaceDustManager : MonoBehaviour
 {
-    public int DustCount;
+    public float DustDensity;
     public GameObject DustPrefab;
     public float DustMaxSpeed;
 
@@ -16,7 +16,7 @@ public class SpaceDustManager : MonoBehaviour
         this.dustCollection = new List<Dust>();
         this.cameraMain = Camera.main;
         var boundingRectangle = this.cameraMain.OrthographicRectInWorldSpace();
-        this.CreateDustParticles(this.DustCount, boundingRectangle);
+        this.CreateDustParticles(this.DustDensity, boundingRectangle);
     }
 
 	// Update is called once per frame
@@ -52,9 +52,11 @@ public class SpaceDustManager : MonoBehaviour
         }
     }
 
-    private void CreateDustParticles(int count, Rect boundingRectangle)
+    private void CreateDustParticles(float density, Rect boundingRectangle)
     {
-        for (var i = 0; i < this.DustCount; i++)
+        // calculate the number of dust particles based on the density and the area of the defined rectangle
+        var dustCount = (int)(density * boundingRectangle.width * boundingRectangle.height);
+        for (var i = 0; i < dustCount; i++)
         {
             var randomX = Random.Range(boundingRectangle.xMin, boundingRectangle.xMax);
             var randomY = Random.Range(boundingRectangle.yMin, boundingRectangle.yMax);
