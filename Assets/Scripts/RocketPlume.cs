@@ -101,6 +101,13 @@ public class RocketPlume : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the scale of the thrust (0..1) corresponding to the value with respect to the scale.
+    /// </summary>
+    /// <param name="value">The value of the acceleration.</param>
+    /// <param name="isPositive">Whether the value should be inverted.</param>
+    /// <param name="scaleMax">The maximum scale.</param>
+    /// <returns></returns>
     private float GetThrustScale(float value, bool isPositive, float scaleMax)
     {
         if (value < 0 && isPositive || value > 0 && !isPositive)
